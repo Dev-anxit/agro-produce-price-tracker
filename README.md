@@ -4,10 +4,14 @@
 [![Framework](https://img.shields.io/badge/Flask-3.x-green.svg)](https://flask.palletsprojects.com/)
 [![ORM](https://img.shields.io/badge/SQLAlchemy-2.x-red.svg)](https://www.sqlalchemy.org/)
 [![Database](https://img.shields.io/badge/SQLite-3-lightgrey.svg)](https://www.sqlite.org/)
+[![Deployment](https://img.shields.io/badge/Vercel-Live%20Demo-black?logo=vercel)](https://agro-produce-price-tracker.vercel.app)
 [![Tests](https://img.shields.io/badge/pytest-31%20passed-brightgreen.svg)](https://pytest.org/)
 [![License](https://img.shields.io/badge/License-MIT-purple.svg)](LICENSE)
 
 A robust RESTful API and interactive market intelligence service built with Flask, Flask-SQLAlchemy, and SQLite to record, update, analyze, and look up daily market prices of agricultural commodities across Agricultural Produce Market Committees (APMCs).
+
+🌐 **Live Production URL**: [https://agro-produce-price-tracker.vercel.app](https://agro-produce-price-tracker.vercel.app)
+
 
 ---
 
