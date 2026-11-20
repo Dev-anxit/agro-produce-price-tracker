@@ -1,0 +1,1340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kisan Mandi Exchange • Daily Agri Price Ledger</title>
+  <!-- Google Fonts: Editorial Serif + Clean Modern Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    /* ═══════════════════════════════════════
+     *  EDITORIAL BOTANICAL / MANDI PALETTE
+     * ═══════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-cream: #fbf9f4;
+      --bg-surface: #ffffff;
+      --bg-subtle: #f4efe6;
+      --bg-warm: #ede6d8;
+      
+      --ink: #1b241b;
+      --ink-muted: #526052;
+      --ink-dim: #7f8e7f;
+      
+      --olive: #244226;
+      --olive-light: #3d6840;
+      --terracotta: #b85028;
+      --terracotta-soft: #fbf0eb;
+      --maize: #d97706;
+      --maize-soft: #fef7ee;
+      --sage: #e3ece3;
+      
+      --border-card: #e4dcce;
+      --border-focus: #244226;
+      
+      --font-serif: 'Fraunces', Georgia, serif;
+      --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
+      --font-mono: 'Space Mono', monospace;
+      
+      --shadow-soft: 0 4px 20px rgba(36, 66, 38, 0.06);
+      --shadow-hover: 0 12px 32px rgba(36, 66, 38, 0.12);
+      --radius: 14px;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--bg-cream);
+      color: var(--ink);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+    }
+
+    /* ═══════════════════════════════════════
+     *  SIDEBAR NAVIGATION (STUDIO LAYOUT)
+     * ═══════════════════════════════════════ */
+    aside.sidebar {
+      width: 280px;
+      background: var(--bg-surface);
+      border-right: 1px solid var(--border-card);
+      padding: 2rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      flex-shrink: 0;
+      z-index: 50;
+    }
+
+    .brand-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid var(--border-card);
+      margin-bottom: 1.75rem;
+    }
+
+    .brand-seal {
+      width: 44px;
+      height: 44px;
+      background: var(--olive);
+      color: #f7eedb;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.35rem;
+      box-shadow: 0 4px 12px rgba(36, 66, 38, 0.2);
+    }
+
+    .brand-name {
+      font-family: var(--font-serif);
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--olive);
+      letter-spacing: -0.5px;
+      line-height: 1.15;
+    }
+    .brand-sub {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--ink-dim);
+      font-weight: 600;
+    }
+
+    .menu-group-label {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--ink-dim);
+      font-weight: 700;
+      margin-bottom: 0.65rem;
+      padding-left: 0.5rem;
+    }
+
+    .nav-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      margin-bottom: 2rem;
+    }
+
+    .nav-item-btn {
+      width: 100%;
+      background: transparent;
+      border: 1px solid transparent;
+      padding: 0.75rem 1rem;
+      border-radius: 10px;
+      font-family: var(--font-sans);
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--ink-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      transition: all 0.2s ease;
+      text-align: left;
+    }
+
+    .nav-item-btn:hover {
+      background: var(--bg-subtle);
+      color: var(--ink);
+    }
+
+    .nav-item-btn.active {
+      background: var(--olive);
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(36, 66, 38, 0.25);
+    }
+
+    /* Sidebar Quintal-to-Kg Converter Widget */
+    .converter-widget {
+      margin-top: auto;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+    }
+
+    .converter-title {
+      font-family: var(--font-serif);
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--olive);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .converter-input {
+      width: 100%;
+      background: #fff;
+      border: 1px solid var(--border-card);
+      padding: 0.5rem 0.75rem;
+      border-radius: 8px;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      margin-top: 0.35rem;
+      outline: none;
+    }
+    .converter-input:focus { border-color: var(--olive); }
+
+    /* ═══════════════════════════════════════
+     *  MAIN CONTENT VIEWPORT
+     * ═══════════════════════════════════════ */
+    .main-viewport {
+      flex: 1;
+      padding: 2.25rem 3rem 5rem;
+      overflow-y: auto;
+      max-width: 1250px;
+    }
+
+    /* Editorial Header Banner */
+    .hero-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      padding-bottom: 1.75rem;
+      border-bottom: 2px solid var(--border-card);
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+    }
+
+    .hero-title-box h1 {
+      font-family: var(--font-serif);
+      font-size: 2.3rem;
+      font-weight: 700;
+      color: var(--olive);
+      letter-spacing: -0.7px;
+      line-height: 1.1;
+    }
+
+    .hero-title-box p {
+      color: var(--ink-muted);
+      font-size: 0.95rem;
+      margin-top: 0.4rem;
+    }
+
+    .action-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    /* Buttons */
+    .btn {
+      font-family: var(--font-sans);
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 0.65rem 1.25rem;
+      border-radius: 9px;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      transition: all 0.2s ease;
+    }
+
+    .btn-olive {
+      background: var(--olive);
+      color: #fff;
+    }
+    .btn-olive:hover {
+      background: var(--olive-light);
+      box-shadow: 0 4px 14px rgba(36, 66, 38, 0.2);
+    }
+
+    .btn-ghost {
+      background: #fff;
+      color: var(--ink);
+      border: 1px solid var(--border-card);
+    }
+    .btn-ghost:hover {
+      background: var(--bg-subtle);
+      border-color: var(--ink-dim);
+    }
+
+    /* ═══════════════════════════════════════
+     *  SUMMARY STRIP (ORGANIC TILES)
+     * ═══════════════════════════════════════ */
+    .summary-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.25rem;
+      margin-bottom: 2.25rem;
+    }
+
+    .summary-box {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius);
+      padding: 1.4rem;
+      position: relative;
+      box-shadow: var(--shadow-soft);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .summary-box:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .summary-box-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.6rem;
+    }
+
+    .summary-title {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--ink-dim);
+    }
+
+    .summary-value {
+      font-family: var(--font-mono);
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--olive);
+    }
+
+    .summary-footnote {
+      font-size: 0.75rem;
+      color: var(--ink-dim);
+      margin-top: 0.35rem;
+    }
+
+    /* ═══════════════════════════════════════
+     *  VIEWPORT SECTIONS
+     * ═══════════════════════════════════════ */
+    .view-pane { display: none; }
+    .view-pane.active { display: block; animation: fadeIn 0.3s ease; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ═══════════════════════════════════════
+     *  FILTER & CONTROLS TOOLBAR
+     * ═══════════════════════════════════════ */
+    .toolbar {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius);
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .search-inputs {
+      display: flex;
+      gap: 0.65rem;
+      flex: 1;
+      min-width: 260px;
+    }
+
+    .styled-input {
+      background: var(--bg-cream);
+      border: 1px solid var(--border-card);
+      color: var(--ink);
+      font-family: inherit;
+      font-size: 0.88rem;
+      padding: 0.55rem 0.9rem;
+      border-radius: 8px;
+      outline: none;
+      flex: 1;
+      transition: border-color 0.2s;
+    }
+    .styled-input:focus {
+      border-color: var(--olive);
+      background: #fff;
+    }
+
+    /* View Switcher: Cards vs Table */
+    .view-switcher {
+      display: flex;
+      background: var(--bg-cream);
+      padding: 0.25rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-card);
+    }
+
+    .switch-btn {
+      background: transparent;
+      border: none;
+      padding: 0.45rem 0.85rem;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--ink-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .switch-btn.active {
+      background: #fff;
+      color: var(--olive);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    }
+
+    /* ═══════════════════════════════════════
+     *  PRODUCE CARD DECK (CARD VIEW)
+     * ═══════════════════════════════════════ */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .produce-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius);
+      padding: 1.4rem;
+      box-shadow: var(--shadow-soft);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.25s ease;
+    }
+    .produce-card:hover {
+      box-shadow: var(--shadow-hover);
+      border-color: var(--olive);
+      transform: translateY(-3px);
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 0.85rem;
+    }
+
+    .crop-identity {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+    }
+
+    .crop-avatar {
+      width: 44px;
+      height: 44px;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-card);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+    }
+
+    .crop-heading h3 {
+      font-family: var(--font-serif);
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--olive);
+    }
+    .crop-heading span {
+      font-size: 0.75rem;
+      color: var(--ink-dim);
+    }
+
+    .price-display {
+      margin: 0.8rem 0;
+      padding: 0.85rem 1rem;
+      background: var(--bg-cream);
+      border-radius: 10px;
+      border-left: 3px solid var(--olive);
+    }
+
+    .price-value-big {
+      font-family: var(--font-mono);
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--olive);
+      display: flex;
+      align-items: baseline;
+      gap: 0.25rem;
+    }
+
+    .price-unit {
+      font-size: 0.72rem;
+      font-family: var(--font-sans);
+      color: var(--ink-muted);
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .market-badge-pill {
+      font-size: 0.75rem;
+      background: var(--terracotta-soft);
+      color: var(--terracotta);
+      border: 1px solid rgba(184, 80, 40, 0.2);
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: auto;
+      padding-top: 1rem;
+      border-top: 1px dashed var(--border-card);
+    }
+
+    .date-text {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--ink-dim);
+    }
+
+    .card-actions {
+      display: flex;
+      gap: 0.4rem;
+    }
+
+    .action-icon-btn {
+      background: var(--bg-cream);
+      border: 1px solid var(--border-card);
+      border-radius: 6px;
+      width: 28px;
+      height: 28px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      transition: all 0.2s;
+    }
+    .action-icon-btn:hover {
+      background: var(--olive);
+      color: #fff;
+      border-color: var(--olive);
+    }
+
+    /* ═══════════════════════════════════════
+     *  LEDGER TABLE VIEW
+     * ═══════════════════════════════════════ */
+    .ledger-table-wrap {
+      background: #fff;
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius);
+      overflow-x: auto;
+      box-shadow: var(--shadow-soft);
+    }
+
+    table.ledger-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    .ledger-table th {
+      background: var(--bg-subtle);
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--ink-muted);
+      padding: 1rem 1.25rem;
+      border-bottom: 2px solid var(--border-card);
+    }
+
+    .ledger-table td {
+      padding: 1rem 1.25rem;
+      font-size: 0.88rem;
+      border-bottom: 1px solid var(--border-card);
+    }
+
+    .ledger-table tbody tr:hover {
+      background: var(--bg-cream);
+    }
+
+    /* ═══════════════════════════════════════
+     *  SLIDE-IN RIGHT DRAWER (ADD & EDIT)
+     * ═══════════════════════════════════════ */
+    .drawer-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(27, 36, 27, 0.45);
+      backdrop-filter: blur(4px);
+      z-index: 200;
+      justify-content: flex-end;
+    }
+    .drawer-overlay.open { display: flex; }
+
+    .drawer-body {
+      background: #fff;
+      width: 100%;
+      max-width: 480px;
+      height: 100vh;
+      box-shadow: -10px 0 30px rgba(0,0,0,0.15);
+      padding: 2.5rem;
+      display: flex;
+      flex-direction: column;
+      animation: drawerSlide 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes drawerSlide {
+      from { transform: translateX(100%); }
+      to { transform: translateX(0); }
+    }
+
+    .drawer-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border-card);
+      margin-bottom: 2rem;
+    }
+
+    .drawer-title {
+      font-family: var(--font-serif);
+      font-size: 1.6rem;
+      color: var(--olive);
+      font-weight: 700;
+    }
+
+    /* ═══════════════════════════════════════
+     *  ANALYTICS & MARKET BENCH VIEW
+     * ═══════════════════════════════════════ */
+    .bench-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .bench-card {
+      background: #fff;
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius);
+      padding: 1.75rem;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .bench-card h2 {
+      font-family: var(--font-serif);
+      font-size: 1.35rem;
+      color: var(--olive);
+      margin-bottom: 0.5rem;
+    }
+
+    .result-display-strip {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-card);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-top: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* ═══════════════════════════════════════
+     *  TOAST NOTIFIER
+     * ═══════════════════════════════════════ */
+    .toast-tray {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .toast-item {
+      background: var(--olive);
+      color: #fff;
+      padding: 0.85rem 1.4rem;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      animation: popIn 0.3s ease;
+    }
+    .toast-item.error { background: var(--terracotta); }
+
+    @keyframes popIn {
+      from { transform: translateY(12px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    /* Responsive */
+    @media (max-width: 960px) {
+      aside.sidebar { display: none; }
+      .main-viewport { padding: 1.5rem; }
+      .summary-strip { grid-template-columns: 1fr 1fr; }
+      .bench-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 600px) {
+      .summary-strip { grid-template-columns: 1fr; }
+      .hero-title-box h1 { font-size: 1.8rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ══════════════ BOTANICAL STUDIO SIDEBAR ══════════════ -->
+  <aside class="sidebar">
+    <div class="brand-wrap">
+      <div class="brand-seal">🌾</div>
+      <div>
+        <div class="brand-name">Kisan Mandi</div>
+        <div class="brand-sub">Daily Price Ledger</div>
+      </div>
+    </div>
+
+    <div class="menu-group-label">Navigation</div>
+    <ul class="nav-list">
+      <li>
+        <button class="nav-item-btn active" onclick="showPane('market', this)">
+          <span>🏛️</span> Mandi Ledger
+        </button>
+      </li>
+      <li>
+        <button class="nav-item-btn" onclick="showPane('charts', this)">
+          <span>📈</span> Price Curves
+        </button>
+      </li>
+      <li>
+        <button class="nav-item-btn" onclick="showPane('analysis', this)">
+          <span>⚖️</span> Rate Compare & Mean
+        </button>
+      </li>
+    </ul>
+
+    <!-- Quick Quintal to Kg Payout Calculator -->
+    <div class="converter-widget">
+      <div class="converter-title">
+        <span>⚖️</span> Payout Estimator
+      </div>
+      <p style="font-size:0.75rem; color:var(--ink-muted)">
+        Enter weight in Kg to calculate payout at selected market rate:
+      </p>
+      <input type="number" id="calcKg" class="converter-input" placeholder="Weight in Kg (e.g. 500)" oninput="calculatePayout()" />
+      <input type="number" id="calcRate" class="converter-input" placeholder="Rate ₹ / Quintal (e.g. 2450)" oninput="calculatePayout()" />
+      <div style="margin-top:0.65rem; font-family:var(--font-mono); font-size:1.05rem; font-weight:700; color:var(--olive)" id="calcPayout">
+        ₹ 0.00
+      </div>
+      <div style="font-size:0.68rem; color:var(--ink-dim); margin-top:0.2rem;">
+        1 Quintal = 100 Kilograms
+      </div>
+    </div>
+  </aside>
+
+  <!-- ══════════════ MAIN VIEWPORT ══════════════ -->
+  <div class="main-viewport">
+
+    <!-- Header Banner -->
+    <header class="hero-header">
+      <div class="hero-title-box">
+        <h1>Wholesale Agriculture Exchange</h1>
+        <p>Official verified spot prices across Agricultural Produce Market Committees (APMCs)</p>
+      </div>
+      <div class="action-row">
+        <button class="btn btn-ghost" onclick="downloadCSV()">📥 Export Sheet</button>
+        <button class="btn btn-olive" onclick="openDrawer('add')">+ Record New Rate</button>
+      </div>
+    </header>
+
+    <!-- Summary Metrics Strip -->
+    <section class="summary-strip">
+      <div class="summary-box">
+        <div class="summary-box-head">
+          <span class="summary-title">Ledger Entries</span>
+          <span>📜</span>
+        </div>
+        <div class="summary-value" id="kpiCount">-</div>
+        <div class="summary-footnote">All verified logs</div>
+      </div>
+
+      <div class="summary-box">
+        <div class="summary-box-head">
+          <span class="summary-title">Crops Tracked</span>
+          <span>🌱</span>
+        </div>
+        <div class="summary-value" id="kpiCrops">-</div>
+        <div class="summary-footnote">Commodity varieties</div>
+      </div>
+
+      <div class="summary-box">
+        <div class="summary-box-head">
+          <span class="summary-title">Active Mandis</span>
+          <span>🏛️</span>
+        </div>
+        <div class="summary-value" id="kpiMarkets">-</div>
+        <div class="summary-footnote">Registered APMC yards</div>
+      </div>
+
+      <div class="summary-box">
+        <div class="summary-box-head">
+          <span class="summary-title">Average Rate</span>
+          <span>💰</span>
+        </div>
+        <div class="summary-value" id="kpiMean">-</div>
+        <div class="summary-footnote">Weighted INR / Quintal</div>
+      </div>
+    </section>
+
+    <!-- ─── PANE 1: MANDI LEDGER (CARDS & TABLE) ─── -->
+    <div id="pane-market" class="view-pane active">
+
+      <!-- Filter & Controls Toolbar -->
+      <div class="toolbar">
+        <div class="search-inputs">
+          <input type="text" id="searchInput" class="styled-input" placeholder="🔍 Search by crop (e.g. Wheat, Tomato)..." oninput="handleSearch()" />
+          <input type="text" id="marketInput" class="styled-input" placeholder="📍 Filter APMC market..." oninput="handleSearch()" />
+        </div>
+
+        <div class="view-switcher">
+          <button class="switch-btn active" id="btnViewCards" onclick="setViewMode('cards')">
+            <span>⊞</span> Cards
+          </button>
+          <button class="switch-btn" id="btnViewTable" onclick="setViewMode('table')">
+            <span>☰</span> Ledger
+          </button>
+        </div>
+      </div>
+
+      <!-- Container for Produce Cards -->
+      <div id="deckContainer" class="card-grid"></div>
+
+      <!-- Container for Ledger Table -->
+      <div id="tableContainer" class="ledger-table-wrap" style="display:none;">
+        <table class="ledger-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Produce</th>
+              <th>Mandi / APMC</th>
+              <th>Price per Quintal</th>
+              <th>Quotation Date</th>
+              <th style="text-align:right;">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ─── PANE 2: PRICE CURVES (CHARTS) ─── -->
+    <div id="pane-charts" class="view-pane">
+      <div class="bench-card" style="margin-bottom: 2rem;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+          <div>
+            <h2>Price Trajectory Curves</h2>
+            <p style="font-size:0.85rem; color:var(--ink-muted);">Comparative historical spot rate trends</p>
+          </div>
+          <select id="chartCropSelector" class="styled-input" style="width:200px;" onchange="renderCharts()">
+            <option value="ALL">All Commodities</option>
+          </select>
+        </div>
+        <div style="position:relative; height:360px;">
+          <canvas id="priceCurveChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── PANE 3: RATE COMPARE & MEAN (ANALYTICS) ─── -->
+    <div id="pane-analysis" class="view-pane">
+      <div class="bench-grid">
+        <!-- Latest Spot Lookup -->
+        <div class="bench-card">
+          <h2>Latest Spot Price</h2>
+          <p style="font-size:0.85rem; color:var(--ink-muted); margin-bottom:1.25rem;">
+            Instant lookup for the most recent quotation recorded for a commodity.
+          </p>
+          <div style="display:flex; gap:0.5rem;">
+            <input type="text" id="latestSearchCrop" class="styled-input" placeholder="Produce (e.g. Wheat)" />
+            <button class="btn btn-olive" onclick="fetchLatestSpot()">Lookup</button>
+          </div>
+          <div id="latestSpotResult"></div>
+        </div>
+
+        <!-- Range Weighted Average -->
+        <div class="bench-card">
+          <h2>Date-Span Average</h2>
+          <p style="font-size:0.85rem; color:var(--ink-muted); margin-bottom:1.25rem;">
+            Calculate arithmetic mean price within custom calendar bounds.
+          </p>
+          <div style="display:flex; flex-direction:column; gap:0.65rem;">
+            <input type="text" id="avgSearchCrop" class="styled-input" placeholder="Produce (e.g. Rice)" />
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem;">
+              <input type="date" id="avgDateFrom" class="styled-input" />
+              <input type="date" id="avgDateTo" class="styled-input" />
+            </div>
+            <button class="btn btn-olive" style="align-self:flex-start;" onclick="fetchSpanAverage()">Calculate Mean</button>
+          </div>
+          <div id="spanAverageResult"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══════════════ DRAWER (RECORD / EDIT) ══════════════ -->
+  <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer(event)">
+    <div class="drawer-body" onclick="event.stopPropagation()">
+      <div class="drawer-header">
+        <h2 class="drawer-title" id="drawerTitle">Record Spot Rate</h2>
+        <button onclick="closeDrawer()" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:var(--ink-dim);">✕</button>
+      </div>
+
+      <form id="drawerForm" onsubmit="handleFormSubmit(event)">
+        <input type="hidden" id="formRecordId" />
+
+        <div style="margin-bottom:1.25rem;">
+          <label style="font-size:0.75rem; font-weight:700; text-transform:uppercase; color:var(--ink-dim);">Produce / Crop Name *</label>
+          <input type="text" id="formCrop" class="styled-input" style="width:100%; margin-top:0.35rem;" placeholder="e.g. Wheat, Rice, Tomato" required />
+        </div>
+
+        <div style="margin-bottom:1.25rem;">
+          <label style="font-size:0.75rem; font-weight:700; text-transform:uppercase; color:var(--ink-dim);">APMC Mandi Yard *</label>
+          <input type="text" id="formMarket" class="styled-input" style="width:100%; margin-top:0.35rem;" placeholder="e.g. Pune APMC" required />
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.75rem;">
+          <div>
+            <label style="font-size:0.75rem; font-weight:700; text-transform:uppercase; color:var(--ink-dim);">Price (₹ / Quintal) *</label>
+            <input type="number" step="0.01" min="0.01" id="formPrice" class="styled-input" style="width:100%; margin-top:0.35rem;" placeholder="2450.00" required />
+          </div>
+          <div>
+            <label style="font-size:0.75rem; font-weight:700; text-transform:uppercase; color:var(--ink-dim);">Quotation Date *</label>
+            <input type="date" id="formDate" class="styled-input" style="width:100%; margin-top:0.35rem;" required />
+          </div>
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:auto;">
+          <button type="button" class="btn btn-ghost" onclick="closeDrawer()">Cancel</button>
+          <button type="submit" class="btn btn-olive">Save to Ledger</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="toast-tray" id="toastTray"></div>
+
+  <!-- ══════════════ LOGIC SCRIPT ══════════════ -->
+  <script>
+    let rawRecords = [];
+    let currentViewMode = 'cards';
+    let curveChartInstance = null;
+    let searchDebounce = null;
+
+    const ICONS = {
+      wheat: '🌾', rice: '🍚', onion: '🧅', tomato: '🍅',
+      potato: '🥔', maize: '🌽', soybean: '🫘', mustard: '🌼',
+      cotton: '🧶', garlic: '🧄', ginger: '🫚'
+    };
+
+    function iconFor(crop) {
+      if (!crop) return '🌱';
+      return ICONS[crop.toLowerCase()] || '🌱';
+    }
+
+    function fmt(val) {
+      return new Intl.NumberFormat('en-IN', { maximumFractionDigits: 2 }).format(val);
+    }
+
+    function toast(text, isErr = false) {
+      const tray = document.getElementById('toastTray');
+      const item = document.createElement('div');
+      item.className = `toast-item ${isErr ? 'error' : ''}`;
+      item.textContent = `${isErr ? '⚠️' : '✓'} ${text}`;
+      tray.appendChild(item);
+      setTimeout(() => item.remove(), 3200);
+    }
+
+    function showPane(paneId, btn) {
+      document.querySelectorAll('.view-pane').forEach(p => p.classList.remove('active'));
+      document.getElementById(`pane-${paneId}`).classList.add('active');
+
+      document.querySelectorAll('.nav-item-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+
+      if (paneId === 'charts') renderCharts();
+    }
+
+    function setViewMode(mode) {
+      currentViewMode = mode;
+      document.getElementById('btnViewCards').classList.toggle('active', mode === 'cards');
+      document.getElementById('btnViewTable').classList.toggle('active', mode === 'table');
+      document.getElementById('deckContainer').style.display = mode === 'cards' ? 'grid' : 'none';
+      document.getElementById('tableContainer').style.display = mode === 'table' ? 'block' : 'none';
+    }
+
+    /* ─── DATA ENGINE ─── */
+    async function fetchLedger() {
+      const crop = document.getElementById('searchInput').value.trim();
+      const market = document.getElementById('marketInput').value.trim();
+
+      let url = '/prices?';
+      if (crop) url += `crop=${encodeURIComponent(crop)}&`;
+      if (market) url += `market=${encodeURIComponent(market)}&`;
+
+      try {
+        const res = await fetch(url);
+        rawRecords = await res.json();
+        renderDeck(rawRecords);
+        renderTable(rawRecords);
+        computeMetrics(rawRecords);
+        populateChartCropDropdown(rawRecords);
+      } catch (err) {
+        toast('Failed connecting to mandi API', true);
+      }
+    }
+
+    function handleSearch() {
+      clearTimeout(searchDebounce);
+      searchDebounce = setTimeout(fetchLedger, 200);
+    }
+
+    /* ─── RENDER DECK (CARDS VIEW) ─── */
+    function renderDeck(records) {
+      const deck = document.getElementById('deckContainer');
+      if (!records || records.length === 0) {
+        deck.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:3rem; color:var(--ink-dim); background:#fff; border:1px solid var(--border-card); border-radius:var(--radius);">No commodity records matching search filters.</div>`;
+        return;
+      }
+
+      deck.innerHTML = records.map(r => `
+        <div class="produce-card">
+          <div class="card-top">
+            <div class="crop-identity">
+              <div class="crop-avatar">${iconFor(r.crop_name)}</div>
+              <div class="crop-heading">
+                <h3>${r.crop_name}</h3>
+                <span>Entry #${r.id}</span>
+              </div>
+            </div>
+            <span class="market-badge-pill">📍 ${r.market}</span>
+          </div>
+
+          <div class="price-display">
+            <div class="price-value-big">
+              ₹ ${fmt(r.price_per_quintal)}
+              <span class="price-unit">/ Quintal</span>
+            </div>
+          </div>
+
+          <div class="card-footer">
+            <span class="date-text">📅 ${r.price_date}</span>
+            <div class="card-actions">
+              <button class="action-icon-btn" title="Edit" onclick='openEditRecord(${JSON.stringify(r)})'>✏️</button>
+              <button class="action-icon-btn" title="Delete" onclick="deleteRecord(${r.id})">🗑️</button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    /* ─── RENDER LEDGER TABLE ─── */
+    function renderTable(records) {
+      const tbody = document.getElementById('tableBody');
+      if (!records || records.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:2rem; color:var(--ink-dim);">No records.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = records.map(r => `
+        <tr>
+          <td style="font-family:var(--font-mono); font-weight:700; color:var(--ink-dim);">#${r.id}</td>
+          <td style="font-weight:600;">${iconFor(r.crop_name)} ${r.crop_name}</td>
+          <td><span class="market-badge-pill">📍 ${r.market}</span></td>
+          <td style="font-family:var(--font-mono); font-weight:700; color:var(--olive);">₹ ${fmt(r.price_per_quintal)}</td>
+          <td style="font-family:var(--font-mono); font-size:0.8rem; color:var(--ink-muted);">${r.price_date}</td>
+          <td style="text-align:right;">
+            <button class="action-icon-btn" onclick='openEditRecord(${JSON.stringify(r)})'>✏️</button>
+            <button class="action-icon-btn" style="margin-left:0.3rem;" onclick="deleteRecord(${r.id})">🗑️</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    /* ─── SUMMARY KPIS ─── */
+    function computeMetrics(records) {
+      document.getElementById('kpiCount').textContent = records.length;
+      const crops = new Set(records.map(r => r.crop_name.toLowerCase()));
+      const markets = new Set(records.map(r => r.market.toLowerCase()));
+      document.getElementById('kpiCrops').textContent = crops.size;
+      document.getElementById('kpiMarkets').textContent = markets.size;
+
+      if (records.length > 0) {
+        const sum = records.reduce((acc, c) => acc + c.price_per_quintal, 0);
+        document.getElementById('kpiMean').textContent = `₹ ${fmt(sum / records.length)}`;
+      } else {
+        document.getElementById('kpiMean').textContent = `₹ 0`;
+      }
+    }
+
+    /* ─── LIVE QUINTAL TO KG PAYOUT CALCULATOR ─── */
+    function calculatePayout() {
+      const kg = parseFloat(document.getElementById('calcKg').value) || 0;
+      const rate = parseFloat(document.getElementById('calcRate').value) || 0;
+      // 1 Quintal = 100 Kg. So price per Kg = rate / 100
+      const total = (kg * rate) / 100;
+      document.getElementById('calcPayout').textContent = `₹ ${fmt(total)}`;
+    }
+
+    /* ─── SLIDE-IN DRAWER LOGIC ─── */
+    function openDrawer(mode = 'add') {
+      document.getElementById('drawerTitle').textContent = mode === 'add' ? 'Record Spot Rate' : 'Edit Ledger Record';
+      document.getElementById('drawerOverlay').classList.add('open');
+      if (mode === 'add') {
+        document.getElementById('drawerForm').reset();
+        document.getElementById('formRecordId').value = '';
+        document.getElementById('formDate').valueAsDate = new Date();
+      }
+    }
+
+    function closeDrawer(e) {
+      if (e && e.target !== document.getElementById('drawerOverlay')) return;
+      document.getElementById('drawerOverlay').classList.remove('open');
+    }
+
+    function openEditRecord(record) {
+      openDrawer('edit');
+      document.getElementById('formRecordId').value = record.id;
+      document.getElementById('formCrop').value = record.crop_name;
+      document.getElementById('formMarket').value = record.market;
+      document.getElementById('formPrice').value = record.price_per_quintal;
+      document.getElementById('formDate').value = record.price_date;
+    }
+
+    async function handleFormSubmit(e) {
+      e.preventDefault();
+      const id = document.getElementById('formRecordId').value;
+      const payload = {
+        crop_name: document.getElementById('formCrop').value.trim(),
+        market: document.getElementById('formMarket').value.trim(),
+        price_per_quintal: parseFloat(document.getElementById('formPrice').value),
+        price_date: document.getElementById('formDate').value
+      };
+
+      const isUpdate = Boolean(id);
+      const url = isUpdate ? `/prices/${id}` : '/prices';
+      const method = isUpdate ? 'PUT' : 'POST';
+
+      try {
+        const res = await fetch(url, {
+          method: method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (res.ok) {
+          toast(isUpdate ? `Record #${id} updated` : `Entry #${data.id} recorded`);
+          document.getElementById('drawerOverlay').classList.remove('open');
+          fetchLedger();
+        } else {
+          toast(data.error || 'Failed saving record', true);
+        }
+      } catch {
+        toast('Connection error', true);
+      }
+    }
+
+    async function deleteRecord(id) {
+      if (!confirm(`Delete ledger entry #${id}?`)) return;
+      try {
+        const res = await fetch(`/prices/${id}`, { method: 'DELETE' });
+        if (res.ok) {
+          toast(`Record #${id} deleted`);
+          fetchLedger();
+        } else {
+          toast('Failed to delete', true);
+        }
+      } catch {
+        toast('Network error', true);
+      }
+    }
+
+    /* ─── CHARTS ─── */
+    function populateChartCropDropdown(records) {
+      const sel = document.getElementById('chartCropSelector');
+      const uniqueCrops = Array.from(new Set(records.map(r => r.crop_name)));
+      const cur = sel.value;
+      sel.innerHTML = `<option value="ALL">All Commodities (Composite)</option>` + uniqueCrops.map(c => `<option value="${c}">${iconFor(c)} ${c}</option>`).join('');
+      if (uniqueCrops.includes(cur)) sel.value = cur;
+    }
+
+    function renderCharts() {
+      const ctx = document.getElementById('priceCurveChart').getContext('2d');
+      const sel = document.getElementById('chartCropSelector').value;
+
+      let list = [...rawRecords].sort((a, b) => new Date(a.price_date) - new Date(b.price_date));
+      if (sel !== 'ALL') {
+        list = list.filter(r => r.crop_name.toLowerCase() === sel.toLowerCase());
+      }
+
+      const dates = Array.from(new Set(list.map(r => r.price_date)));
+      const values = dates.map(d => {
+        const matching = list.filter(r => r.price_date === d);
+        return matching.reduce((a, b) => a + b.price_per_quintal, 0) / matching.length;
+      });
+
+      if (curveChartInstance) curveChartInstance.destroy();
+
+      curveChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: dates,
+          datasets: [{
+            label: sel === 'ALL' ? 'Composite APMC Price' : `${sel} Spot Price`,
+            data: values,
+            borderColor: '#244226',
+            backgroundColor: 'rgba(36, 66, 38, 0.08)',
+            fill: true,
+            tension: 0.3,
+            borderWidth: 2.5,
+            pointBackgroundColor: '#244226',
+            pointRadius: 5
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { labels: { font: { family: 'Plus Jakarta Sans', weight: 600 } } },
+            tooltip: {
+              callbacks: {
+                label: (c) => ` ₹ ${fmt(c.raw)} / Quintal`
+              }
+            }
+          },
+          scales: {
+            x: { grid: { display: false } },
+            y: {
+              ticks: { callback: v => '₹' + v, font: { family: 'Space Mono' } },
+              grid: { color: 'rgba(0,0,0,0.05)' }
+            }
+          }
+        }
+      });
+    }
+
+    /* ─── ANALYTICS ENDPOINTS ─── */
+    async function fetchLatestSpot() {
+      const crop = document.getElementById('latestSearchCrop').value.trim();
+      const box = document.getElementById('latestSpotResult');
+      if (!crop) { toast('Enter crop name', true); return; }
+
+      try {
+        const res = await fetch(`/prices/latest?crop=${encodeURIComponent(crop)}`);
+        const data = await res.json();
+        if (res.ok) {
+          box.innerHTML = `
+            <div class="result-display-strip">
+              <div>
+                <div style="font-size:0.75rem; text-transform:uppercase; color:var(--ink-dim); font-weight:700;">Most Recent Quotation</div>
+                <div style="font-family:var(--font-serif); font-size:1.8rem; font-weight:700; color:var(--olive);">
+                  ${iconFor(data.crop_name)} ${data.crop_name}
+                </div>
+                <div style="font-size:0.85rem; color:var(--ink-muted); margin-top:0.2rem;">📍 ${data.market}</div>
+              </div>
+              <div style="text-align:right;">
+                <div style="font-family:var(--font-mono); font-size:1.8rem; font-weight:700; color:var(--olive);">
+                  ₹ ${fmt(data.price_per_quintal)}
+                </div>
+                <div style="font-family:var(--font-mono); font-size:0.75rem; color:var(--ink-dim);">${data.price_date}</div>
+              </div>
+            </div>
+          `;
+        } else {
+          box.innerHTML = `<p style="color:var(--terracotta); margin-top:1rem; font-size:0.85rem;">⚠️ ${data.error}</p>`;
+        }
+      } catch {
+        toast('Lookup failed', true);
+      }
+    }
+
+    async function fetchSpanAverage() {
+      const crop = document.getElementById('avgSearchCrop').value.trim();
+      const from = document.getElementById('avgDateFrom').value;
+      const to = document.getElementById('avgDateTo').value;
+      const box = document.getElementById('spanAverageResult');
+
+      if (!crop || !from || !to) { toast('Fill all fields', true); return; }
+
+      try {
+        const res = await fetch(`/prices/average?crop=${encodeURIComponent(crop)}&from=${from}&to=${to}`);
+        const data = await res.json();
+        if (res.ok) {
+          box.innerHTML = `
+            <div class="result-display-strip">
+              <div>
+                <div style="font-size:0.75rem; text-transform:uppercase; color:var(--ink-dim); font-weight:700;">Calculated Mean</div>
+                <div style="font-family:var(--font-serif); font-size:1.8rem; font-weight:700; color:var(--olive);">
+                  ${iconFor(data.crop)} ${data.crop}
+                </div>
+                <div style="font-size:0.85rem; color:var(--ink-muted);">${data.record_count} entries within interval</div>
+              </div>
+              <div style="text-align:right;">
+                <div style="font-family:var(--font-mono); font-size:1.8rem; font-weight:700; color:var(--olive);">
+                  ₹ ${fmt(data.average_price_per_quintal)}
+                </div>
+                <div style="font-family:var(--font-mono); font-size:0.75rem; color:var(--ink-dim);">${data.from} → ${data.to}</div>
+              </div>
+            </div>
+          `;
+        } else {
+          box.innerHTML = `<p style="color:var(--terracotta); margin-top:1rem; font-size:0.85rem;">⚠️ ${data.error}</p>`;
+        }
+      } catch {
+        toast('Average calculation failed', true);
+      }
+    }
+
+    /* ─── EXPORT CSV ─── */
+    function downloadCSV() {
+      if (!rawRecords.length) { toast('No records to export', true); return; }
+      let csv = 'ID,Produce,Market,Price_Per_Quintal,Price_Date,Created_At\n';
+      rawRecords.forEach(r => {
+        csv += `${r.id},"${r.crop_name}","${r.market}",${r.price_per_quintal},"${r.price_date}","${r.created_at}"\n`;
+      });
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `kisan_mandi_ledger_${new Date().toISOString().slice(0,10)}.csv`;
+      a.click();
+      toast('Mandi ledger exported');
+    }
+
+    /* ─── INIT ─── */
+    document.addEventListener('DOMContentLoaded', () => {
+      fetchLedger();
+    });
+  </script>
+</body>
+</html>
