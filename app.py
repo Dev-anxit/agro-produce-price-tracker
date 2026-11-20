@@ -57,10 +57,18 @@ def validate_price_payload(data):
 
 
 def create_app(test_config=None):
-    app = Flask(__name__)
+    base_dir = os.path.abspath(os.path.dirname(__file__))
+    template_dir = os.path.join(base_dir, "templates")
+    app = Flask(__name__, template_folder=template_dir)
 
+    is_vercel = os.environ.get("VERCEL") == "1" or "VERCEL" in os.environ
+    default_db = (
+        "sqlite:////tmp/agro_prices.db"
+        if is_vercel
+        else "sqlite:///agro_prices.db"
+    )
     app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
-        "DATABASE_URL", "sqlite:///agro_prices.db"
+        "DATABASE_URL", default_db
     )
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
@@ -71,6 +79,11 @@ def create_app(test_config=None):
 
     with app.app_context():
         db.create_all()
+        if is_vercel and PriceRecord.query.count() == 0:
+            from seed import SAMPLE_DATA
+            records = [PriceRecord(**item) for item in SAMPLE_DATA]
+            db.session.bulk_save_objects(records)
+            db.session.commit()
 
     @app.errorhandler(400)
     def bad_request(error):
